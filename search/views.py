@@ -104,7 +104,8 @@ def Index(request):
         query = request.GET.get('query') #検索ワード：query
 
         if query:
-            query = query.split()
+            # query = query.split()
+            query = stemming(removeStoplist(prepro(query)))
 
             # クエリのベクトル生成
             query_vec = np.zeros(len(all_terms))
