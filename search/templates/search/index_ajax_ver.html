@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Paper Search{% endblock title %}
+
+{% block extrahead %}
+{% load bootstrap %}
+{% endblock %}
+
+<!-- {% block body %}
+  <body class="bk">
+    <div class="bkRGBA">
+{% endblock %} -->
+{% block content %}
+      <form id="getform" action="" method="get">
+        <input id="query" type="text" size="60" name="query">
+        <input type="submit" class="btn btn-primary" value="検索">
+      </form>
+      <div id="result" height=100%>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function() {
+    $('#getform').submit(function() {
+      $('#result').html('');
+      $.ajax({
+        'url':'{% url "search:do_search" %}',
+        'type':'GET',
+        'data':{
+            'query':$('#query').val(),
+        },
+        'dataType':'json',
+        'success':function(response){
+          $('#result').append('<br>')
+          if (response.result_num=='0'){
+            $('#result').append('<font color="red">対象のPaperは見つかりません</font><br>')
+          }else{
+            $('#result').append('<font color="red">検索結果が'+response.result_num+'件見つかりました</font><br><br>')
+            $.each(response.result_title, function(index, title){
+              $.each(response.result_abst, function(index2, abst){
+                if (index == index2){
+                  tmp_abst = abst;
+                }
+              });
+              $.each(response.len_abst, function(index3, l_a){
+                if (index == index3){
+                  tmp_len_abst = l_a;
+                }
+              });
+              $.each(response.p_id, function(index4, pi){
+                if (index == index4){
+                  tmp_paper_id = pi;
+                }
+              });
+              if (tmp_len_abst <= 200){
+                $('#result').append('<div style="padding: 20px; margin-bottom: 10px; border: 1px solid #333333; background: rgba(255,255,255,0.6);"><b><a href="../content/'+tmp_paper_id+'">'+title+'</a></b><br>'+tmp_abst+'</div>');
+              }else{
+                $('#result').append('<div style="padding: 20px; margin-bottom: 10px; border: 1px solid #333333; background: rgba(255,255,255,0.6);"><b><a href="../content/'+tmp_paper_id+'">'+title+'</a></b><br>'+tmp_abst+'...</div>');
+              }
+            });
+          }
+          $('#result').append('<br>')
+        },
+      });
+      return false;
+    });
+  });
+</script>
+{% endblock scripts %}
