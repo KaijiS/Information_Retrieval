@@ -1,1 +1,3 @@
 # Information_Retrieval
+
+ベクトル空間モデルを用いた情報検索システムの基礎的な実装
