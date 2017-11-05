@@ -78,20 +78,15 @@ for i in Paper.objects.all():
     tmp = stemming(removeStoplist(prepro(i.abst)))
     doc.append(tmp)
 
-# tf-idfを計算しファイルに出力(行に各文書ベクトル、列はベクトルの各次元の要素)
-doc_vec = tf_idf(make_term(doc),doc)
 #全出現単語
 all_terms = make_term(doc)
 
+# tf-idfを計算しファイルに出力(行に各文書ベクトル、列はベクトルの各次元の要素)
+doc_vec = tf_idf(make_term(doc),doc)
+
+
 def Index(request):
     """検索結果"""
-    # return HttpResponse('検索結果')
-
-    #ajaxチェック
-    # if request.is_ajax():
-    #     print("ok_ajax")
-    # else:
-    #     print("non_ajax")
 
     result_title = []
     result_abst = []
@@ -104,12 +99,11 @@ def Index(request):
         query = request.GET.get('query') #検索ワード：query
 
         if query:
-            # query = query.split()
-            query = stemming(removeStoplist(prepro(query)))
+            query_tmp = stemming(removeStoplist(prepro(query)))
 
             # クエリのベクトル生成
             query_vec = np.zeros(len(all_terms))
-            for i in query:
+            for i in query_tmp:
                 if i in all_terms:
                     query_vec[all_terms.index(i)] = 1
 
@@ -136,29 +130,19 @@ def Index(request):
 
             search_flag = '1'
 
-    # ajaxを使用するとき
-            # d = {
-            #     'result_title':result_title,
-            #     'result_abst':result_abst,
-            #     'len_abst':len_abst,
-            #     'p_id':p_id,
-            #     'result_num':str(len(result_abst))
-            # }
-            # return JsonResponse(d)
-    # return render(request, 'search/index_ajax_ver.html')
-
     d = {
+        'query':query,
         'search_flag':search_flag,
         'result_title':result_title,
         'result_abst':result_abst,
         'len_abst':len_abst,
         'p_id':p_id,
-        'result_num':str(len(result_abst))
+        'result_num':str(len(result_abst)),
     }
     return render(request, 'search/index.html',d)
 
+
 def Content(request,paper_id):
-    # return HttpResponse('検索結果')
 
     cont = get_object_or_404(Paper, pk=paper_id)
     contexts = {
